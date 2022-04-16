@@ -19,14 +19,14 @@ func doSpace(id string, info bool) error {
    if err != nil {
       return err
    }
+   source, err := guest.Source(space)
+   if err != nil {
+      return err
+   }
    if info {
       fmt.Println(space)
+      fmt.Println("LINK", source.Location)
    } else {
-      source, err := guest.Source(space)
-      if err != nil {
-         return err
-      }
-      fmt.Println("GET", source.Location)
       res, err := http.Get(source.Location)
       if err != nil {
          return err
