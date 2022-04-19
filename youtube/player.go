@@ -28,6 +28,9 @@ type Player struct {
    StreamingData struct {
       AdaptiveFormats Formats
       Formats Formats
+      DashManifestUrl    string `json:"dashManifestUrl"`
+		HLSManifestUrl     string `json:"hlsManifestUrl"`
+		OnesieStreamingUrl string `json:"onesieStreamingUrl"`
    }
 }
 
