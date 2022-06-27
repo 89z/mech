@@ -20,7 +20,7 @@ func Test_Search(t *testing.T) {
 const android = "zv9NimPx3Es"
 
 func Test_Android(t *testing.T) {
-   play, err := Android.Player(android)
+   play, err := Request{Body: Android}.Player(android)
    if err != nil {
       t.Fatal(err)
    }
@@ -35,8 +35,9 @@ var android_embeds = []string{
 }
 
 func Test_Android_Embed(t *testing.T) {
+   req := Request{Body: Android_Embed}
    for _, embed := range android_embeds {
-      play, err := Android_Embed.Player(embed)
+      play, err := req.Player(embed)
       if err != nil {
          t.Fatal(err)
       }
@@ -60,12 +61,13 @@ func Test_Android_Racy(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   change, err := Open_Exchange(home + "/mech/youtube.json")
+   req := Request{Body: Android_Racy}
+   req.Header, err = Open_Header(home + "/mech/youtube.json")
    if err != nil {
       t.Fatal(err)
    }
    for _, racy := range android_racys {
-      play, err := Android_Racy.Exchange(racy, change)
+      play, err := req.Player(racy)
       if err != nil {
          t.Fatal(err)
       }
@@ -83,11 +85,12 @@ func Test_Android_Content(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   change, err := Open_Exchange(home + "/mech/youtube.json")
+   req := Request{Body: Android_Content}
+   req.Header, err = Open_Header(home + "/mech/youtube.json")
    if err != nil {
       t.Fatal(err)
    }
-   play, err := Android_Content.Exchange(android_content, change)
+   play, err := req.Player(android_content)
    if err != nil {
       t.Fatal(err)
    }

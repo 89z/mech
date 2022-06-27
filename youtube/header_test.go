@@ -19,12 +19,12 @@ func Test_OAuth(t *testing.T) {
 `, auth.Verification_URL, auth.User_Code)
    for range [9]bool{} {
       time.Sleep(9 * time.Second)
-      change, err := auth.Exchange()
+      head, err := auth.Header()
       if err != nil {
          t.Fatal(err)
       }
-      fmt.Printf("%+v\n", change)
-      if change.Access_Token != "" {
+      fmt.Printf("%+v\n", head)
+      if head.Access_Token != "" {
          break
       }
    }

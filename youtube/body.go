@@ -97,7 +97,7 @@ var Mweb = Body{
 
 func (r Request) Player(id string) (*Player, error) {
    r.Body.Video_ID = id
-   buf, err := mech.Encode(r)
+   buf, err := mech.Encode(r.Body)
    if err != nil {
       return nil, err
    }

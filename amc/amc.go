@@ -4,10 +4,22 @@ import (
    "bytes"
    "github.com/89z/format/http"
    "github.com/89z/format/json"
-   "github.com/89z/mech"
    "strconv"
    "strings"
 )
+
+func (a Auth) Create(name string) error {
+   return json.Encode(name, a)
+}
+
+func Open_Auth(name string) (*Auth, error) {
+   auth := new(Auth)
+   err := json.Decode(name, auth)
+   if err != nil {
+      return nil, err
+   }
+   return auth, nil
+}
 
 var Client = http.Default_Client
 
@@ -28,12 +40,6 @@ type playback_request struct {
       Player_Width int `json:"playerWidth"`
       URL string `json:"url"`
    } `json:"adtags"`
-}
-
-type playback_response struct {
-   Data struct {
-      PlaybackJsonData Playback_JSON_Data
-   }
 }
 
 func Unauth() (*Auth, error) {
@@ -115,51 +121,6 @@ func (a *Auth) Refresh() error {
    return json.NewDecoder(res.Body).Decode(a)
 }
 
-func (a Auth) Playback(nID int64) (*Playback, error) {
-   var (
-      addr []byte
-      p playback_request
-   )
-   addr = append(addr, "https://gw.cds.amcn.com/playback-id/api/v1/playback/"...)
-   addr = strconv.AppendInt(addr, nID, 10)
-   p.Ad_Tags.Mode = "on-demand"
-   p.Ad_Tags.URL = "!"
-   buf, err := mech.Encode(p)
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest("POST", string(addr), buf)
-   if err != nil {
-      return nil, err
-   }
-   req.Header = http.Header{
-      "Authorization": {"Bearer " + a.Data.Access_Token},
-      "Content-Type": {"application/json"},
-      "X-Amcn-Device-Ad-Id": {"!"},
-      "X-Amcn-Language": {"en"},
-      "X-Amcn-Network": {"amcplus"},
-      "X-Amcn-Platform": {"web"},
-      "X-Amcn-Service-Id": {"amcplus"},
-      "X-Amcn-Tenant": {"amcn"},
-      "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
-   }
-   res, err := Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var (
-      out playback_response
-      play Playback
-   )
-   if err := json.NewDecoder(res.Body).Decode(&out); err != nil {
-      return nil, err
-   }
-   play.PlaybackJsonData = out.Data.PlaybackJsonData
-   play.BC_JWT = res.Header.Get("X-AMCN-BC-JWT")
-   return &play, nil
-}
-
 type Auth struct {
    Data struct {
       Access_Token string
@@ -167,10 +128,12 @@ type Auth struct {
    }
 }
 
-func Open_Auth(name string) (*Auth, error) {
-   return json.Open[Auth](name)
-}
-
-func (a Auth) Create(name string) error {
-   return json.Create(a, name)
+type Source struct {
+   Key_Systems *struct {
+      Widevine struct {
+         License_URL string
+      } `json:"com.widevine.alpha"`
+   }
+   Src string
+   Type string
 }

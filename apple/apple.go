@@ -25,7 +25,9 @@ func (a Auth) Create(name string) error {
       return err
    }
    defer file.Close()
-   return json.NewEncoder(file).Encode(a)
+   enc := json.NewEncoder(file)
+   enc.SetIndent("", " ")
+   return enc.Encode(a)
 }
 
 func Open_Auth(name string) (Auth, error) {
